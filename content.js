@@ -1,23 +1,32 @@
-const observer = new MutationObserver((mutations) => {
-    mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach((node) => {
-            // Ensure the added node is an element (not text or comment)
-            if (node.nodeType === 1 && node.getAttribute('data-testid') === 'tweet') {
-                console.log("New tweet detected:", node);
-                processTweet(node); // Apply your processing logic here
-            }
-        });
-    });
-});
+console.log("Content script loaded");
 
-// Function to process a tweet
 function processTweet(tweet) {
     if (!tweet.hasAttribute('data-processed')) {
-        tweet.style.outline = "2px solid red";
-        tweet.setAttribute('data-processed', 'true'); // Mark as processed
-        console.log("Processed tweet:", tweet.innerText);
+        console.log("Processing tweet", tweet.innertext);
+        if (tweet.innerText.includes('Show more')) {
+            tweet.style.outline = "2px solid red";
+        }
+        tweet.setAttribute('data-processed', 'true');
     }
 }
 
-// Start observing the document body for changes
-observer.observe(document.body, { childList: true, subtree: true });
+function startObserver() {
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            mutation.addedNodes.forEach((node) => {
+                if (node.nodeType === 1 && node.getAttribute('data-testid') === 'cellInnerDiv') {
+                    const tweet = node.querySelector('[data-testid="tweet"]');
+                    processTweet(tweet);
+                }
+            });
+        });
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+}
+
+if (document.body) {
+    startObserver();
+} else {
+    console.log("document.body not ready, waiting...");
+    document.addEventListener('DOMContentLoaded', startObserver);
+}
