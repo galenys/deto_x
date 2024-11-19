@@ -1,0 +1,27 @@
+{
+    "manifest_version": 3,
+    "name": "DetoX",
+    "description": "Filter out tweets you don't want to see using a custom prompt.",
+    "version": "0.1",
+    "action": {
+        "default_popup": "index.html",
+        "default_icon": "fish.png"
+    },
+    "permissions": [
+        "scripting",
+        "activeTab"
+    ],
+    "host_permissions": [
+        "https://x.com/*"
+    ],
+    "content_scripts": [
+        {
+            "matches": [
+                "https://x.com/*"
+            ],
+            "js": [
+                "content.js"
+            ]
+        }
+    ]
+}
