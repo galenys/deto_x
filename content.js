@@ -1,13 +1,23 @@
-console.log("Content script loaded");
-
-function processTweet(tweet) {
-    if (!tweet.hasAttribute('data-processed')) {
-        console.log("Processing tweet", tweet.innertext);
-        if (tweet.innerText.includes('Show more')) {
-            tweet.style.outline = "2px solid red";
-        }
-        tweet.setAttribute('data-processed', 'true');
+async function processTweet(tweet) {
+    if (tweet == null || getTweetLikes(tweet) < 100) {
+        return;
     }
+    const tweetText = tweet.querySelector('[data-testid="tweetText"]').innerText;
+    if (tweetText == null) {
+        return;
+    }
+
+    chrome.runtime.sendMessage(
+        { type: "FILTER_TWEET", tweetText },
+        (response) => {
+            if (response.isFiltered) {
+                console.log("Filtered tweet:", tweetText);
+                addGreyCover(tweet);
+            } else {
+                console.log("Tweet is fine:", tweetText);
+            }
+        }
+    );
 }
 
 function startObserver() {
@@ -16,7 +26,9 @@ function startObserver() {
             mutation.addedNodes.forEach((node) => {
                 if (node.nodeType === 1 && node.getAttribute('data-testid') === 'cellInnerDiv') {
                     const tweet = node.querySelector('[data-testid="tweet"]');
-                    processTweet(tweet);
+                    processTweet(tweet).catch((error) => {
+                        console.error("Error processing tweet:", error);
+                    });
                 }
             });
         });
@@ -29,4 +41,73 @@ if (document.body) {
 } else {
     console.log("document.body not ready, waiting...");
     document.addEventListener('DOMContentLoaded', startObserver);
+}
+
+function parseNumber(text) {
+    const suffixes = { K: 1e3, M: 1e6, B: 1e9 }; // Define suffix multipliers
+    const match = text.match(/^(\d+(\.\d+)?)([KMB])?$/i); // Match number and optional suffix
+
+    if (!match) {
+        throw new Error("Invalid number format");
+    }
+
+    const number = parseFloat(match[1]); // Parse the numeric part
+    const suffix = match[3]?.toUpperCase(); // Get the suffix, if present
+
+    return suffix ? number * suffixes[suffix] : number; // Multiply by suffix factor or return plain number
+}
+
+function getTweetLikes(tweet) {
+    const likeButton = tweet.querySelector('[data-testid="like"]');
+    if (likeButton) {
+        return parseNumber(likeButton.innerText);
+    }
+    return 0;
+}
+
+function addGreyCover(tweet) {
+    const original_height = tweet.getBoundingClientRect().height + "px";
+    const caret = tweet.querySelector('[data-testid="caret"]');
+    caret.style.zIndex = "1001"; // Ensure it overlays the cover
+
+    // Create the grey cover
+    const cover = document.createElement("div");
+    cover.style.position = "absolute";
+    cover.style.top = "0";
+    cover.style.left = "0";
+    cover.style.width = "100%";
+    cover.style.height = "100%";
+    cover.style.backgroundColor = "rgba(0, 0, 0, 1)";
+    cover.style.display = "flex";
+    cover.style.flexDirection = "column";
+    cover.style.alignItems = "center";
+    cover.style.justifyContent = "center";
+    cover.style.zIndex = "1000"; // Ensure it overlays the tweet
+
+    // Create the reveal button
+    const revealButton = document.createElement("button");
+    revealButton.innerText = "Show hidden tweet";
+    revealButton.style.padding = "0";
+    revealButton.style.height = "100%";
+    revealButton.style.width = "100%";
+    revealButton.style.fontFamily = "Arial, sans-serif";
+    revealButton.style.textAlign = "center";
+    revealButton.style.fontSize = "12px";
+    revealButton.style.color = "white";
+    revealButton.style.backgroundColor = "black";
+    revealButton.style.border = "none";
+    revealButton.style.cursor = "pointer";
+
+    tweet.style.height = "40px";
+
+    // Add click event to reveal the tweet
+    revealButton.addEventListener("click", () => {
+        tweet.style.height = original_height;
+        cover.remove(); // Remove the cover
+    });
+
+    cover.appendChild(revealButton);
+
+    // Append the cover to the tweet
+    tweet.appendChild(cover);
 }

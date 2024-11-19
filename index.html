@@ -1,7 +1,40 @@
 <html>
 
+<head>
+    <style>
+        body {
+            width: 300px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        input {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
 <body>
-    <h1>DetoX</h1>
+    <h1>deto_x</h1>
+    <form>
+        <label for="promptInput">Hide these tweets:</label>
+        <textarea type="text" id="promptInput" placeholder="e.g. Is this tweet about politics?"></textarea>
+        <label for="apiKeyInput">OpenAI API Key:</label>
+        <input type="password" id="apiKeyInput" placeholder="Enter your OpenAI API key">
+
+        <button type="button" id="submit">Save</button>
+    </form>
+    <script src="popup.js"></script>
 </body>
 
 </html>

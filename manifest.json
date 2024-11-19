@@ -1,6 +1,6 @@
 {
     "manifest_version": 3,
-    "name": "DetoX",
+    "name": "deto_x",
     "description": "Filter out tweets you don't want to see using a custom prompt.",
     "version": "0.1",
     "action": {
@@ -9,10 +9,15 @@
     },
     "permissions": [
         "scripting",
-        "activeTab"
+        "activeTab",
+        "storage"
     ],
+    "background": {
+        "service_worker": "background.js"
+    },
     "host_permissions": [
-        "https://x.com/*"
+        "https://x.com/*",
+        "https://api.openai.com/*"
     ],
     "content_scripts": [
         {
