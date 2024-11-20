@@ -21,14 +21,11 @@ async function processTweet(tweet) {
 
     const isEnabled = await isExtensionEnabled();
     if (!isEnabled) {
-        console.log("Extension is disabled");
         return;
     }
-    console.log("Extension is enabled");
 
     const minLikesToFilter = await getMinLikesToFilter();
     if (getTweetLikes(tweet) < minLikesToFilter) {
-        console.log("Tweet does not meet minimum likes threshold:", getTweetLikes(tweet));
         return;
     }
 

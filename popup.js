@@ -15,8 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // Get the enabled state when the popup loads
     chrome.runtime.sendMessage({ type: "GET_EXTENSION_ENABLED" }, (response) => {
         const extensionEnabled = response.extensionEnabled || false;
-        console.log("Extension enabled:", extensionEnabled);
-
         document.getElementById('enabledCheckbox').checked = extensionEnabled;
         popupEnabled(extensionEnabled);
     });
@@ -74,10 +72,16 @@ document.getElementById('submit').addEventListener('click', () => {
 function popupEnabled(isEnabled) {
     if (isEnabled) {
         document.body.style.color = "black";
+        document.getElementById("promptInput").disabled = false;
+        document.getElementById("apiKeyInput").disabled = false;
+        document.getElementById("minLikesToFilterInput").disabled = false;
         document.getElementById("submit").disabled = false;
         document.getElementById("submit").style.backgroundColor = "navy";
     } else {
         document.body.style.color = "grey";
+        document.getElementById("promptInput").disabled = true;
+        document.getElementById("apiKeyInput").disabled = true;
+        document.getElementById("minLikesToFilterInput").disabled = true;
         document.getElementById("submit").disabled = true;
         document.getElementById("submit").style.backgroundColor = "grey";
     }
