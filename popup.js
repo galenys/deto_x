@@ -8,6 +8,10 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('promptInput').value = response.prompt || '';
     });
 
+    chrome.runtime.sendMessage({ type: "GET_MIN_LIKES_TO_FILTER" }, (response) => {
+        document.getElementById('minLikesToFilterInput').value = response.minLikesToFilter || 0;
+    });
+
     // Get the enabled state when the popup loads
     chrome.runtime.sendMessage({ type: "GET_EXTENSION_ENABLED" }, (response) => {
         const extensionEnabled = response.extensionEnabled || false;
@@ -53,6 +57,16 @@ document.getElementById('submit').addEventListener('click', () => {
             console.log("Prompt saved successfully!");
         } else {
             console.error("Failed to save prompt.");
+        }
+    });
+
+    // Save the minimum likes threshold
+    const minLikesToFilter = parseInt(document.getElementById('minLikesToFilterInput').value);
+    chrome.runtime.sendMessage({ type: "SET_MIN_LIKES_TO_FILTER", minLikesToFilter }, (response) => {
+        if (response.success) {
+            console.log("Minimum likes threshold saved successfully!");
+        } else {
+            console.error("Failed to save minimum likes threshold.");
         }
     });
 });

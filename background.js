@@ -60,6 +60,23 @@ chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
                 sendResponse({ isFiltered: false });
             });
         return true;
+    } else if (message.type === "GET_MIN_LIKES_TO_FILTER") {
+        // Retrieve the minimum likes threshold from Chrome storage
+        chrome.storage.local.get("minLikesToFilter", (data) => {
+            sendResponse({ minLikesToFilter: data.minLikesToFilter || 0 });
+        });
+
+        // Required to allow async response
+        return true;
+    } else if (message.type === "SET_MIN_LIKES_TO_FILTER") {
+        // Save the minimum likes threshold in Chrome storage
+        chrome.storage.local.set({ minLikesToFilter: message.minLikesToFilter }, () => {
+            console.log("Minimum likes threshold saved as:", message.minLikesToFilter);
+            sendResponse({ success: true });
+        });
+
+        // Required to allow async response
+        return true;
     }
 });
 

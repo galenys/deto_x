@@ -6,7 +6,19 @@ function isExtensionEnabled() {
     });
 }
 
+function getMinLikesToFilter() {
+    return new Promise((resolve) => {
+        chrome.runtime.sendMessage({ type: "GET_MIN_LIKES_TO_FILTER" }, (response) => {
+            resolve(response.minLikesToFilter || 0);
+        });
+    });
+}
+
 async function processTweet(tweet) {
+    if (tweet == null) {
+        return;
+    }
+
     const isEnabled = await isExtensionEnabled();
     if (!isEnabled) {
         console.log("Extension is disabled");
@@ -14,9 +26,12 @@ async function processTweet(tweet) {
     }
     console.log("Extension is enabled");
 
-    if (tweet == null || getTweetLikes(tweet) < 100) {
+    const minLikesToFilter = await getMinLikesToFilter();
+    if (getTweetLikes(tweet) < minLikesToFilter) {
+        console.log("Tweet does not meet minimum likes threshold:", getTweetLikes(tweet));
         return;
     }
+
     const tweetTextDiv = tweet.querySelector('[data-testid="tweetText"]');
     if (tweetTextDiv == null) {
         return;
