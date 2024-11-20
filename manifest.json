@@ -5,7 +5,11 @@
     "version": "0.1",
     "action": {
         "default_popup": "index.html",
-        "default_icon": "fish.png"
+        "default_icon": {
+            "16": "fish_16.png",
+            "48": "fish_48.png",
+            "128": "fish_128.png"
+        }
     },
     "permissions": [
         "scripting",
@@ -16,8 +20,7 @@
         "service_worker": "background.js"
     },
     "host_permissions": [
-        "https://x.com/*",
-        "https://api.openai.com/*"
+        "https://x.com/*"
     ],
     "content_scripts": [
         {
