@@ -1,8 +1,25 @@
 chrome.runtime.onMessage.addListener((message, _, sendResponse) => {
-    if (message.type === "SAVE_API_KEY") {
+    if (message.type === "GET_EXTENSION_ENABLED") {
+        // Retrieve the enabled state from Chrome storage
+        chrome.storage.local.get("extensionEnabled", (data) => {
+            sendResponse({ extensionEnabled: data.extensionEnabled || false });
+        });
+
+        // Required to allow async response
+        return true
+    } else if (message.type === "SET_EXTENSION_ENABLED") {
+        // Save the enabled state in Chrome storage
+        chrome.storage.local.set({ extensionEnabled: message.extensionEnabled }, () => {
+            console.log("Extension enabled state saved as:", message.extensionEnabled);
+            sendResponse({ success: true });
+        });
+
+        // Required to allow async response
+        return true;
+    } else if (message.type === "SAVE_API_KEY") {
         // Save the API key in Chrome storage
         chrome.storage.local.set({ openaiApiKey: message.apiKey }, () => {
-            console.log("API key saved securely.");
+            console.log("API key saved.");
             sendResponse({ success: true });
         });
 

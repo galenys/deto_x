@@ -7,6 +7,31 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.runtime.sendMessage({ type: "GET_PROMPT" }, (response) => {
         document.getElementById('promptInput').value = response.prompt || '';
     });
+
+    // Get the enabled state when the popup loads
+    chrome.runtime.sendMessage({ type: "GET_EXTENSION_ENABLED" }, (response) => {
+        const extensionEnabled = response.extensionEnabled || false;
+        console.log("Extension enabled:", extensionEnabled);
+
+        document.getElementById('enabledCheckbox').checked = extensionEnabled;
+        popupEnabled(extensionEnabled);
+    });
+});
+
+document.getElementById('enabledCheckbox').addEventListener('change', () => {
+    // Get the new state of the checkbox
+    const isEnabled = document.getElementById('enabledCheckbox').checked;
+    popupEnabled(isEnabled);
+
+    // Save the enabled state
+    chrome.runtime.sendMessage({ type: "SET_EXTENSION_ENABLED", extensionEnabled: isEnabled }, (response) => {
+        if (response.success) {
+            console.log("Enabled state saved successfully!");
+        } else {
+            console.error("Failed to save enabled state");
+        }
+    }
+    );
 });
 
 document.getElementById('submit').addEventListener('click', () => {
@@ -30,6 +55,16 @@ document.getElementById('submit').addEventListener('click', () => {
             console.error("Failed to save prompt.");
         }
     });
-
-    document.getElementById('status').innerText = "Settings saved!";
 });
+
+function popupEnabled(isEnabled) {
+    if (isEnabled) {
+        document.body.style.color = "black";
+        document.getElementById("submit").disabled = false;
+        document.getElementById("submit").style.backgroundColor = "navy";
+    } else {
+        document.body.style.color = "grey";
+        document.getElementById("submit").disabled = true;
+        document.getElementById("submit").style.backgroundColor = "grey";
+    }
+}

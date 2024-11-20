@@ -1,20 +1,33 @@
+function isExtensionEnabled() {
+    return new Promise((resolve) => {
+        chrome.runtime.sendMessage({ type: "GET_EXTENSION_ENABLED" }, (response) => {
+            resolve(response.extensionEnabled || false);
+        });
+    });
+}
+
 async function processTweet(tweet) {
+    const isEnabled = await isExtensionEnabled();
+    if (!isEnabled) {
+        console.log("Extension is disabled");
+        return;
+    }
+    console.log("Extension is enabled");
+
     if (tweet == null || getTweetLikes(tweet) < 100) {
         return;
     }
-    const tweetText = tweet.querySelector('[data-testid="tweetText"]').innerText;
-    if (tweetText == null) {
+    const tweetTextDiv = tweet.querySelector('[data-testid="tweetText"]');
+    if (tweetTextDiv == null) {
         return;
     }
+    const tweetText = tweetTextDiv.innerText;
 
     chrome.runtime.sendMessage(
         { type: "FILTER_TWEET", tweetText },
         (response) => {
             if (response.isFiltered) {
-                console.log("Filtered tweet:", tweetText);
                 addGreyCover(tweet);
-            } else {
-                console.log("Tweet is fine:", tweetText);
             }
         }
     );
@@ -67,8 +80,8 @@ function getTweetLikes(tweet) {
 
 function addGreyCover(tweet) {
     const original_height = tweet.getBoundingClientRect().height + "px";
-    const caret = tweet.querySelector('[data-testid="caret"]');
-    caret.style.zIndex = "1001"; // Ensure it overlays the cover
+    // const caret = tweet.querySelector('[data-testid="caret"]');
+    // caret.style.zIndex = "1001"; // Ensure it overlays the cover
 
     // Create the grey cover
     const cover = document.createElement("div");
