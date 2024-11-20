@@ -2,7 +2,7 @@
 
 deto_x is a Chrome extension that helps you filter tweets in your feed based on custom criteria using OpenAI’s GPT-3.5 model. Users can configure a custom prompt to analyze tweets and optionally hide tweets that match the criteria. It aims to be highly configurable and easily extensible.
 
-![alt text](image.png)
+![alt text](popup_preview.png)
 
 ## Why would I want this?
 
